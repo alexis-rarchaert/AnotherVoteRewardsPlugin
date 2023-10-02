@@ -1,0 +1,7 @@
+name: AnotherVoteRewardsPlugin
+version: 1.0-SNAPSHOT
+api-version: 1.20
+author: Alexis Rarchaert
+main: fr.urbsNations.AnotherVoteRewardsPlugin.Main
+depend:
+  - Votifier

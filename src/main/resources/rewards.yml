@@ -1,0 +1,16 @@
+rewards:
+  basic:
+    items:
+      - name: "&6Épée en Or"
+        material: GOLDEN_SWORD
+        amount: 1
+        lore:
+          - "&7Épée spéciale en or"
+        enchants:
+          DAMAGE_ALL: 2
+      - name: "&bPotion de Santé"
+        material: POTION
+        amount: 3
+        potion_type: INCREASE_DAMAGE
+        lore:
+          - "&7Potion de force"
