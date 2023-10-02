@@ -1,5 +1,6 @@
 package fr.urbsNations.AnotherVoteRewardsPlugin;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -8,24 +9,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Main extends JavaPlugin  {
 
     private Map<String, Object> rewards;
-    private RewardDataManager rewardDataManager;
     private static Main instance;
 
     public void onEnable() {
         instance = this;
-        rewardDataManager = new RewardDataManager(this);
 
         loadRewards();
 
         saveResource("rewards.yml", false);
 
-        getServer().getPluginManager().registerEvents(new VoteEventListener(rewardDataManager), this);
+        getServer().getPluginManager().registerEvents(new VoteEventListener(), this);
         System.out.println("[AnotherVoteRewardsPlugin] Plugin started");
     }
 
@@ -55,33 +55,42 @@ public class Main extends JavaPlugin  {
         ItemMeta meta = item.getItemMeta();
 
         if (displayName != null) {
-            meta.setDisplayName(displayName);
+            // Transformer les codes de couleur (&c, &b, etc.) en codes de format de texte de Bukkit
+            String coloredDisplayName = ChatColor.translateAlternateColorCodes('&', displayName);
+            meta.setDisplayName(coloredDisplayName);
         }
 
-        Map<String, Integer> enchantments = (Map<String, Integer>) itemData.get("enchants");
-        if (enchantments != null) {
-            enchantments.forEach((enchantName, level) -> {
-                Enchantment enchantment = Enchantment.getByName(enchantName);
-                if (enchantment != null) {
-                    meta.addEnchant(enchantment, level, true);
-                }
+        List<Map<String, Integer>> enchantmentList = getEnchantments(itemData);
+        if (enchantmentList != null) {
+            enchantmentList.forEach(enchantMap -> {
+                enchantMap.forEach((enchantName, level) -> {
+                    Enchantment enchantment = Enchantment.getByName(enchantName);
+                    if (enchantment != null) {
+                        meta.addEnchant(enchantment, level, true);
+                    }
+                });
             });
         }
 
+
         if (lore != null) {
-            meta.setLore(lore);
+            // Transformer les codes de couleur dans chaque ligne du lore
+            List<String> coloredLore = new ArrayList<>();
+            for (String line : lore) {
+                coloredLore.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+            meta.setLore(coloredLore);
         }
 
         item.setItemMeta(meta);
         return item;
     }
 
-    public ItemStack getSpecialItem(String rewardKey) {
-        Map<String, Object> rewardData = (Map<String, Object>) rewards.get("rewards");
-        Map<String, Object> itemData = (Map<String, Object>) rewardData.get(rewardKey);
-        if (itemData != null) {
-            return createUniqueItem(itemData);
-        }
-        return null;
+    public List<Map<String, Object>> getSpecialItems() {
+        return (List<Map<String, Object>>) rewards.get("rewards");
+    }
+
+    public List<Map<String, Integer>> getEnchantments(Map<String, Object> itemData) {
+        return (List<Map<String, Integer>>) itemData.get("enchants");
     }
 }
