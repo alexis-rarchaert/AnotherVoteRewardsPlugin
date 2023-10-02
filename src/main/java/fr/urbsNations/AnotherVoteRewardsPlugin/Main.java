@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Main extends JavaPlugin  {
-
     private Map<String, Object> rewards;
     private static Main instance;
 
